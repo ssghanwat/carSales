@@ -1,0 +1,74 @@
+{
+	"name": "ds_sqlDB",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sqlDB",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"tableName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "BranchId",
+				"type": "varchar"
+			},
+			{
+				"name": "dealer_id",
+				"type": "varchar"
+			},
+			{
+				"name": "model_id",
+				"type": "varchar"
+			},
+			{
+				"name": "Revenue",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "units_sold",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "date_id",
+				"type": "varchar"
+			},
+			{
+				"name": "day",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "month",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "year",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "BranchName",
+				"type": "varchar"
+			},
+			{
+				"name": "DealerName",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": {
+				"value": "@dataset().tableName",
+				"type": "Expression"
+			}
+		}
+	}
+}

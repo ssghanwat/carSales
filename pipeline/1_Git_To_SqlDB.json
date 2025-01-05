@@ -1,0 +1,367 @@
+{
+	"name": "1_Git_To_SqlDB",
+	"properties": {
+		"description": "This pipeline gets data from git repository to sql database for forming source",
+		"activities": [
+			{
+				"name": "CopyGitToSqlDB",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "Branch_ID",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "BranchId",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Dealer_ID",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "dealer_id",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Model_ID",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "model_id",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Revenue",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Revenue",
+									"type": "Int64",
+									"physicalType": "bigint"
+								}
+							},
+							{
+								"source": {
+									"name": "Units_Sold",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "units_sold",
+									"type": "Int64",
+									"physicalType": "bigint"
+								}
+							},
+							{
+								"source": {
+									"name": "Date_ID",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "date_id",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Day",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "day",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "Month",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "month",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "Year",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "year",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "BranchName",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "BranchName",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "DealerName",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "DealerName",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_httpGit",
+						"type": "DatasetReference",
+						"parameters": {
+							"loadFlag": "SalesData.csv"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_sqlDB",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "SetVariableSuccess",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "CopyGitToSqlDB",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "status",
+					"value": "Success"
+				}
+			},
+			{
+				"name": "SetVariableFailure",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "CopyGitToSqlDB",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "status",
+					"value": "Failed"
+				}
+			},
+			{
+				"name": "LookupTarget",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "CopyGitToSqlDB",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select count(*) as RecordCount from [dbo].[source_cars_data];",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ds_sqlDB",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "StoredProcedureLogs",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "RecordCountVar",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[LogPipelineDetails]",
+					"storedProcedureParameters": {
+						"FactoryName": {
+							"value": {
+								"value": "@pipeline().DataFactory",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelineName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"RecordCount": {
+							"value": {
+								"value": "@variables('RecordCount')",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"RunID": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"Status": {
+							"value": {
+								"value": "@variables('status')",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_sqlDB",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "RecordCountVar",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "LookupTarget",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "RecordCount",
+					"value": {
+						"value": "@activity('LookupTarget').output.firstRow.RecordCount",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"status": {
+				"type": "String"
+			},
+			"RecordCount": {
+				"type": "Integer"
+			}
+		},
+		"annotations": []
+	}
+}

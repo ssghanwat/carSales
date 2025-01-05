@@ -1,0 +1,30 @@
+{
+	"name": "ds_httpGit",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_httpGIT",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"loadFlag": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": {
+					"value": "anshlambagit/Azure-DE-Project-Resources/refs/heads/main/Raw%20Data/@{dataset().loadFlag}",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
